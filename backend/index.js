@@ -133,9 +133,6 @@
 //   const token = at.toJwt();
 //   res.json({ token, url: process.env.LIVEKIT_URL });
 // });
-
-
-
 // app.listen(5000, () => console.log("Backend running on 5000"));
 
 
@@ -146,45 +143,64 @@ const app = require("express")();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
   cors: {
-    origin: "*", // React frontend URL allow karein
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
 
-let broadcaster;
+let emailToSocketIdMap = new Map();
+let socketIdToEmailMap = new Map();
+
 
 io.on("connection", (socket) => {
-  // Jab Host live aaye
-  socket.on("broadcaster", () => {
-    broadcaster = socket.id;
-    socket.broadcast.emit("broadcaster");
+  socket.on("room:join", (data) => {
+    const { email, roomId } = data;
+    emailToSocketIdMap.set(email, socket.id);
+    socketIdToEmailMap.set(socket.id, email);
+    io.to(roomId).emit("user:joined", { email, id: socket.id });
+    socket.join(roomId)
+    io.to(socket.id).emit("room:join", data);
+
   });
 
-  // Jab Viewer join kare
-  socket.on("viewer", () => {
-    if (broadcaster) {
-      socket.to(broadcaster).emit("viewer", socket.id);
-    }
-  });
+  socket.on("user:coll", ({ to, offer }) => {
+    io.to(to).emit("incomming:call", { form: socket.id, offer })
+  })
 
-  // Signaling messages ko pass karna
-  socket.on("offer", (id, message) => {
-    socket.to(id).emit("offer", socket.id, message);
-  });
+  socket.on("coll:accepted", ({ to, ans }) => {
+    io.to(to).emit("coll:accepted", { form: socket.id, ans })
+  })
 
-  socket.on("answer", (id, message) => {
-    socket.to(id).emit("answer", socket.id, message);
-  });
 
-  socket.on("candidate", (id, message) => {
-    socket.to(id).emit("candidate", socket.id, message);
-  });
+  // socket.on("broadcaster", () => {
+  //   broadcaster = socket.id;
+  //   socket.broadcast.emit("broadcaster");
 
-  socket.on("disconnect", () => {
-    if (socket.id === broadcaster) {
-      broadcaster = null;
-    }
-  });
+  // });
+
+  // socket.on("viewer", () => {
+  //   if (broadcaster) {
+  //     socket.to(broadcaster).emit("viewer", socket.id);
+  //   }
+  // });
+
+  // socket.on("offer", (id, message) => {
+  //   socket.to(id).emit("offer", socket.id, message);
+  // });
+
+  // socket.on("answer", (id, message) => {
+  //   socket.to(id).emit("answer", socket.id, message);
+  // });
+
+  // socket.on("candidate", (id, message) => {
+  //   socket.to(id).emit("candidate", socket.id, message);
+  // });
+
+  // socket.on("disconnect", () => {
+  //   if (socket.id === broadcaster) {
+  //     broadcaster = null;
+  //   }
+  // });
 });
 
 server.listen(5000, () => console.log("Server is running on port 5000"));

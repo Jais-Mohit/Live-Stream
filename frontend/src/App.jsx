@@ -2,14 +2,19 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import GoLive from './GoLive';
 import Watch from './Watch';
+import Lobby from "./Lobby";
+import Room from "./Room";
 
 function App() {
 
   return (
-   <BrowserRouter>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<GoLive />} />
-        <Route path="/watch" element={<Watch />} />
+        {/* <Route path="/" element={<GoLive />} />
+        <Route path="/watch" element={<Watch />} /> */}
+        <Route path="/" element={<Lobby />} />
+        <Route path="/room/:roomId" element={<Room />} />
+
       </Routes>
     </BrowserRouter>
   )
