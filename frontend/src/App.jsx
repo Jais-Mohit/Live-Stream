@@ -1,9 +1,12 @@
 // import { useState } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import GoLive from './GoLive';
-import Watch from './Watch';
-import Lobby from "./Lobby";
-import Room from "./Room";
+// import GoLive from './GoLive';
+// import Watch from './Watch';
+// import Lobby from "./Lobby";
+// import Room from "./Room";
+import Host from "./screen/Host";
+import Viewer from "./screen/Viewer";
+import LiveList from "./screen/LiveList";
 
 function App() {
 
@@ -12,8 +15,13 @@ function App() {
       <Routes>
         {/* <Route path="/" element={<GoLive />} />
         <Route path="/watch" element={<Watch />} /> */}
-        <Route path="/" element={<Lobby />} />
-        <Route path="/room/:roomId" element={<Room />} />
+
+        {/* <Route path="/" element={<Lobby />} />
+        <Route path="/room/:roomId" element={<Room />} /> */}
+
+        <Route path="/host" element={<Host />} />
+        <Route path="/view/:roomId" element={<Viewer />} />
+        <Route path="/" element={<LiveList />} />
 
       </Routes>
     </BrowserRouter>
